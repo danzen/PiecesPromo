@@ -1,0 +1,214 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Pieces Promo</title> 
+
+<!-- for CreateJS and ZIMjs http://zimjs.com - free to modify - Dan Zen 2015 -->
+<!-- see http://zimjs.com/templates for more templates and meta tags -->
+
+<script>var zon = true; // true for comments from zim code</script>
+<script src="js/zim_1.4.3.js"></script><!-- take off _min to see code -->
+<script src="js/createjs-2014.12.12.min.js"></script> 
+<!-- or can go to zimjs.com and createjs.com for individual modules -->
+
+<style>
+	body {margin:0px; padding:0px; background-color:#000;}
+	#myCanvas {position:absolute; background-color:#FFF;}
+</style>
+
+<script>
+
+// SCALING OPTIONS
+// "none"		sets canvas and stage to dimensions and does not scale if window changes
+// "fit"		sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+// "full"		sets canvas and stage to window size (canvas is actually set to screen size)
+
+var scaling = "fit"; // full automatically sets width and height to window size
+var width = 534;
+var height = 800;
+var frame = new zim.Frame(scaling, width, height); 
+frame.on("ready", function() {	
+	zog("ready from ZIM Frame - Load");
+	
+	var stage = frame.stage;
+	var stageW = frame.width;
+	var stageH = frame.height;
+	
+	var pageContent = [
+		"01", "02", "03", "04", "05", "look",
+		"06", "07", "look",
+		"08", "09", "look",
+		"10", "look", "11", "12", "look",
+		"13", "14", "look",
+		"15", "16", "look",
+		"17", "18"
+	];
+	
+	// handle asset loading and call main app function when complete
+	var contentPath = "images/";
+	var manifest = [{src:"look.jpg", id:"look"}];
+	for (var i=1; i<=18; i++) {
+		var added = "";
+		if (i<10) added = "0";
+		manifest.push({src:added+i+".jpg", id:added+i});
+	}
+	var preload = new createjs.LoadQueue(false, contentPath); // use true if on the same server	
+	preload.on("complete", app);	 // call the main code when ready	
+	preload.loadManifest(manifest);
+	
+	var waiter = new zim.Waiter(stage);
+	waiter.show();
+	
+	function app() {
+		waiter.hide();
+		
+		var gr = new zim.GridManager();
+		var gu = new zim.GuideManager();
+		
+		
+		
+		var p = []; // holds the assets
+		var c; // container
+		for (var i=0; i<pageContent.length; i++) {
+			c = new createjs.Container();
+			c.addChild(new createjs.Bitmap(preload.getResult(pageContent[i])));
+			p.push(c);	
+			gr.add(new zim.Grid(c, null, false));
+			gu.add(new zim.Guide(c, true, false));
+			gu.add(new zim.Guide(c, false, false));		
+		}
+		
+		// first page slides down
+		// second page slides up or to the right
+		var pageArray = [
+			{page:p[0], swipe:[null,null,null,p[1]]},
+			{page:p[1], swipe:[null,p[2],p[0],null]}
+		];
+		
+		// all the middle pages just slide left to go back or right to go forward
+		for (i=2; i<p.length-1; i++) {
+			pageArray.push({page:p[i], swipe:[p[i-1],p[i+1],null,null]});
+		}
+		// last page only slides left to go back or up to start again
+		pageArray.push({page:p[i], swipe:[p[i-1],null,p[0],null]});
+		
+		var pages = new zim.Pages(stage, pageArray, "slide");
+		
+		// prefer reveals when going to or from start page
+		// pages.transitionTable - [[p[0], p[1], "none"], [p[1], p[0], "reveal"], [p[i], p[0], "reveal"]];
+		
+		// add HotSpots	
+		
+		var hs = new zim.HotSpots([
+			{page:p[0], rect:[135,503,260,260], 	call:function() {pages.go(p[1],"down","reveal")}},
+			{page:p[1], rect:[155,660,230,120], 	call:function() {pages.go(p[2],"right")}},
+			{page:p[1], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[2], rect:[155,660,230,120], 	call:function() {pages.go(p[3],"right")}},
+			{page:p[2], rect:[43,660,110,120], 		call:function() {pages.go(p[1],"left")}},
+			{page:p[2], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			
+			{page:p[3], rect:[155,660,230,120], 	call:function() {pages.go(p[4],"right")}},
+			{page:p[3], rect:[43,660,110,120], 		call:function() {pages.go(p[2],"left")}},
+			{page:p[3], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			
+			{page:p[4], rect:[155,660,230,120], 	call:function() {pages.go(p[5],"right")}},
+			{page:p[4], rect:[43,660,110,120], 		call:function() {pages.go(p[3],"left")}},
+			{page:p[4], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[5], rect:[70,610,140,130], 		call:function() {zgo("http://danzen.com","dz")}},
+			{page:p[5], rect:[215,610,140,130], 	call:function() {zgo("http://tilty.mobi","t")}},
+			{page:p[5], rect:[100,240,340,340], 	call:function() {pages.go(p[6],"right")}},
+			{page:p[5], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[6], rect:[0,140,534,800], 		call:function() {pages.go(p[7],null,"fade")}},
+			{page:p[6], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+
+			{page:p[7], rect:[155,660,230,120], 	call:function() {pages.go(p[8],"right")}},
+			{page:p[7], rect:[43,660,110,120], 		call:function() {pages.go(p[3],"left")}},
+			{page:p[7], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[8], rect:[70,610,140,130], 		call:function() {zgo("http://danzen.com","dz")}},
+			{page:p[8], rect:[215,610,140,130], 	call:function() {zgo("http://tilty.mobi","t")}},
+			{page:p[8], rect:[100,240,340,340], 	call:function() {pages.go(p[9],"right")}},
+			{page:p[8], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[9], rect:[0,140,534,800], 		call:function() {pages.go(p[10],null,"fade")}},
+			{page:p[9], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			
+			{page:p[7], rect:[155,660,230,120], 	call:function() {pages.go(p[8],"right")}},
+			{page:p[7], rect:[43,660,110,120], 		call:function() {pages.go(p[3],"left")}},
+			{page:p[7], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[8], rect:[70,610,140,130], 		call:function() {zgo("http://danzen.com","dz")}},
+			{page:p[8], rect:[215,610,140,130], 	call:function() {zgo("http://tilty.mobi","t")}},
+			{page:p[8], rect:[100,240,340,340], 	call:function() {pages.go(p[9],"right")}},
+			{page:p[8], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[9], rect:[0,140,534,800], 		call:function() {pages.go(p[10],null,"fade")}},
+			{page:p[9], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+
+			{page:p[10], rect:[155,660,230,120], 	call:function() {pages.go(p[11],"right")}},
+			{page:p[10], rect:[43,660,110,120], 	call:function() {pages.go(p[3],"left")}},
+			{page:p[10], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[11], rect:[70,610,140,130], 	call:function() {zgo("http://danzen.com","dz")}},
+			{page:p[11], rect:[215,610,140,130], 	call:function() {zgo("http://tilty.mobi","t")}},
+			{page:p[11], rect:[100,240,340,340], 	call:function() {pages.go(p[12],"right")}},
+			{page:p[11], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[12], rect:[0,140,534,800], 		call:function() {pages.go(p[13],null,"fade")}},
+			{page:p[12], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			// try again
+			{page:p[13], rect:[70,610,140,130], 	call:function() {zgo("http://danzen.com","dz")}},
+			{page:p[13], rect:[215,610,140,130], 	call:function() {zgo("http://tilty.mobi","t")}},
+			{page:p[13], rect:[100,240,340,340], 	call:function() {pages.go(p[14],"right")}},
+			{page:p[13], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[14], rect:[0,140,534,800], 		call:function() {pages.go(p[15],null,"fade")}},
+			{page:p[14], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+
+			{page:p[15], rect:[155,660,230,120], 	call:function() {pages.go(p[16],"right")}},
+			{page:p[15], rect:[43,660,110,120], 	call:function() {pages.go(p[3],"left")}},
+			{page:p[15], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[16], rect:[70,610,140,130], 	call:function() {zgo("http://danzen.com","dz")}},
+			{page:p[16], rect:[215,610,140,130], 	call:function() {zgo("http://tilty.mobi","t")}},
+			{page:p[16], rect:[100,240,340,340], 	call:function() {pages.go(p[17],"right")}},
+			{page:p[16], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[17], rect:[0,140,534,800], 		call:function() {pages.go(p[18],null,"fade")}},
+			{page:p[17], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			
+			{page:p[18], rect:[155,660,230,120], 	call:function() {pages.go(p[19],"right")}},
+			{page:p[18], rect:[43,660,110,120], 	call:function() {pages.go(p[3],"left")}},
+			{page:p[18], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[19], rect:[70,610,140,130], 	call:function() {zgo("http://danzen.com","dz")}},
+			{page:p[19], rect:[215,610,140,130], 	call:function() {zgo("http://tilty.mobi","t")}},
+			{page:p[19], rect:[100,240,340,340], 	call:function() {pages.go(p[20],"right")}},
+			{page:p[19], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[20], rect:[0,140,534,800], 		call:function() {pages.go(p[21],null,"fade")}},
+			{page:p[20], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			
+			{page:p[21], rect:[155,660,230,120], 	call:function() {pages.go(p[22],"right")}},
+			{page:p[21], rect:[43,660,110,120], 	call:function() {pages.go(p[3],"left")}},
+			{page:p[21], rect:[0,0,534,140],		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[22], rect:[70,610,140,130], 	call:function() {zgo("http://danzen.com","dz")}},
+			{page:p[22], rect:[215,610,140,130], 	call:function() {zgo("http://tilty.mobi","t")}},
+			{page:p[22], rect:[100,240,340,340], 	call:function() {pages.go(p[23],"right")}},
+			{page:p[22], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			{page:p[23], rect:[0,140,534,800], 		call:function() {pages.go(p[24],null,"fade")}},
+			{page:p[23], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}},
+			
+			{page:p[24], rect:[155,660,230,120], 	call:function() {pages.go(p[23],null, "fade")}},
+			{page:p[24], rect:[43,660,110,120], 	call:function() {pages.go(p[23],null, "fade")}},
+			{page:p[24], rect:[0,0,534,140], 		call:function() {pages.go(p[0],"up","reveal")}}
+		]
+		);
+		// hs.show(); // showed HotSpots while setting them up
+		
+		gr.dispose(); // used them while setting up pages
+		gu.dispose();
+		
+		stage.addChild(pages);
+		
+	} // end of app
+	
+}); // end of ready
+</script>
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>
