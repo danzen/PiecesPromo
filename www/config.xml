@@ -51,5 +51,10 @@
   
   <access origin="*" browserOnly="true"/>
   <gap:plugin name="org.apache.cordova.inappbrowser" />
+  <plugin name="InAppBrowser" value="CDVInAppBrowser" /> 
+  <feature name="InAppBrowser">
+    <param name="ios-package" value="CDVInAppBrowser" />
+  </feature>
+
 
 </widget>
