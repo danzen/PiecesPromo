@@ -1,5 +1,5 @@
 
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.danzen.piecespromo" version="1.0.0">
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="com.danzen.piecespromo" version="1.0.1">
   <name>Pieces Promo</name>
   <description>Hide and Find App for Gatherings</description>
   <author href="http://pieces.mobi" email="door@danzen.com">Dan Zen</author>
